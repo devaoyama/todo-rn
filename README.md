@@ -10,4 +10,6 @@ React Nativeを勉強するため
 
 ## How
 
-React Nativeでモバイルアプリケーションを開発する方法を学ぶ
+- React Nativeでモバイルアプリケーションを開発する方法を学ぶ
+- Firebaseをバックエンドサービスとして利用する
+- Push通知を実現する
