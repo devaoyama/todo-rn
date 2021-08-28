@@ -13,6 +13,7 @@ import {
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
+import firebase from '../utils/firebase';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -98,6 +99,7 @@ const Home: FC<Props> = ({ navigation }) => {
             ))}
           </VStack>
           <Button onPress={() => navigation.navigate('Detail')}>詳細へ</Button>
+          <Button onPress={() => firebase.auth().signOut()}>ログアウト</Button>
         </VStack>
       </Center>
    </>
