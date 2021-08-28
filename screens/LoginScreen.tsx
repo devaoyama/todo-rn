@@ -1,25 +1,16 @@
 import React, { FC, useState } from "react";
 import { Box, Button, Container, Heading, Input } from "native-base";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
-import firebase from "../utils/firebase";
+import useLogin from "../hooks/auth/useLogin";
+import { RootStackParamList } from ".";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Login">;
 
 const LoginScreen: FC<Props> = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const onClickLoginButton = async () => {
-    setIsLoading(true);
-    await firebase
-      .auth()
-      .signInWithEmailAndPassword(email, password)
-      .catch(() => {
-        setIsLoading(false);
-      });
-  };
+  const { isLoading, login } = useLogin();
 
   return (
     <Box safeArea flex={1} alignItems="center">
@@ -46,7 +37,11 @@ const LoginScreen: FC<Props> = () => {
           value={password}
           onChangeText={setPassword}
         />
-        <Button w="100%" onPress={onClickLoginButton} isLoading={isLoading}>
+        <Button
+          w="100%"
+          onPress={() => login({ email, password })}
+          isLoading={isLoading}
+        >
           ログイン
         </Button>
       </Container>
