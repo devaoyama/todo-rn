@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Center, Button, Heading, Container } from "native-base";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from ".";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
