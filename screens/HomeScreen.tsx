@@ -10,12 +10,12 @@ import {
   Center,
   Button,
 } from "native-base";
-import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome5 } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
-import firebase from '../utils/firebase';
+import { RootStackParamList } from ".";
+import useLogout from "../hooks/auth/useLogout";
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const Home: FC<Props> = ({ navigation }) => {
   const instState = [
@@ -25,6 +25,7 @@ const Home: FC<Props> = ({ navigation }) => {
   ];
   const [list, setList] = React.useState(instState);
   const [inputValue, setInputValue] = React.useState("");
+  const { logout } = useLogout();
   const addItem = (title: string) => {
     setList([
       ...list,
@@ -58,14 +59,14 @@ const Home: FC<Props> = ({ navigation }) => {
             InputRightElement={
               <IconButton
                 icon={<Icon as={FontAwesome5} name="plus" size={4} />}
-              colorScheme="pink"
+                colorScheme="pink"
                 ml={1}
                 onPress={() => {
                   addItem(inputValue);
                   setInputValue("");
                 }}
-                mr={1}/>
-
+                mr={1}
+              />
             }
             onChangeText={(v) => setInputValue(v)}
             value={inputValue}
@@ -98,12 +99,12 @@ const Home: FC<Props> = ({ navigation }) => {
               </HStack>
             ))}
           </VStack>
-          <Button onPress={() => navigation.navigate('Detail')}>詳細へ</Button>
-          <Button onPress={() => firebase.auth().signOut()}>ログアウト</Button>
+          <Button onPress={() => navigation.navigate("Detail")}>詳細へ</Button>
+          <Button onPress={logout}>ログアウト</Button>
         </VStack>
       </Center>
-   </>
+    </>
   );
-}
+};
 
-export default Home
+export default Home;
