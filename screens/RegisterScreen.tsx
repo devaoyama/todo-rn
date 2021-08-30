@@ -1,25 +1,15 @@
 import React, { FC, useState } from "react";
 import { Box, Button, Container, Heading, Input } from "native-base";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
-import firebase from "../utils/firebase";
+import { RootStackParamList } from ".";
+import useRegister from "../hooks/auth/useRegister";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Register">;
 
 const RegisterScreen: FC<Props> = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const onClickRegisterButton = async () => {
-    setIsLoading(true);
-    await firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .catch(() => {
-        setIsLoading(false);
-      });
-  };
+  const { isLoading, register } = useRegister();
 
   return (
     <Box safeArea flex={1} alignItems="center">
@@ -46,7 +36,11 @@ const RegisterScreen: FC<Props> = () => {
           value={password}
           onChangeText={setPassword}
         />
-        <Button w="100%" onPress={onClickRegisterButton} isLoading={isLoading}>
+        <Button
+          w="100%"
+          onPress={() => register({ email, password })}
+          isLoading={isLoading}
+        >
           アカウントを作成する
         </Button>
       </Container>
