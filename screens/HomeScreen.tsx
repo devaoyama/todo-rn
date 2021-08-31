@@ -14,41 +14,16 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from ".";
 import useLogout from "../hooks/auth/useLogout";
+import useAddTodo from "../hooks/useTodo";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
 const Home: FC<Props> = ({ navigation }) => {
-  const instState = [
-    { title: "code", isCompleted: true },
-    { title: "sleep", isCompleted: false },
-    { title: "repeat", isCompleted: false },
-  ];
-  const [list, setList] = React.useState(instState);
   const [inputValue, setInputValue] = React.useState("");
+  const { todos, add, remove, updateStatus } = useAddTodo();
   const { logout } = useLogout();
   const addItem = (title: string) => {
-    setList([
-      ...list,
-      {
-        title: title,
-        isCompleted: false,
-      },
-    ]);
-  };
-  const handleDelete = (index: number) => {
-    const temp = list.filter((_, itemI) => itemI !== index);
-    setList(temp);
-  };
-  const handleStatusChange = (index: number) => {
-    const temp = list.map((item, itemI) =>
-      itemI !== index
-        ? item
-        : {
-            ...item,
-            isCompleted: !item.isCompleted,
-          }
-    );
-    setList(temp);
+    add({ title });
   };
   return (
     <>
@@ -73,28 +48,28 @@ const Home: FC<Props> = ({ navigation }) => {
             placeholder="Add Item"
           />
           <VStack>
-            {list.map((item, itemI) => (
+            {todos.map((todo) => (
               <HStack
                 w="100%"
                 justifyContent="space-between"
                 alignItems="center"
-                key={item.title + itemI.toString()}
+                key={todo.id}
               >
                 <Checkbox
                   colorScheme="pink"
-                  isChecked={item.isCompleted}
-                  onChange={() => handleStatusChange(itemI)}
-                  value={item.title}
+                  isChecked={todo.isCompleted || false}
+                  onChange={() => updateStatus(todo.id, !todo.isCompleted)}
+                  value={todo.title}
                   accessibilityLabel="Todoが完了したかのチェックボックス"
                 >
-                  <Text mx={2} strikeThrough={item.isCompleted}>
-                    {item.title}
+                  <Text mx={2} strikeThrough={todo.isCompleted || false}>
+                    {todo.title}
                   </Text>
                 </Checkbox>
                 <IconButton
                   colorScheme="pink"
                   icon={<Icon as={FontAwesome5} name="trash" size={5} />}
-                  onPress={() => handleDelete(itemI)}
+                  onPress={() => remove(todo.id)}
                 />
               </HStack>
             ))}
