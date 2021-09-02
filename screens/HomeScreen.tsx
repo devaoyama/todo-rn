@@ -57,12 +57,12 @@ const Home: FC<Props> = ({ navigation }) => {
               >
                 <Checkbox
                   colorScheme="pink"
-                  isChecked={todo.isCompleted || false}
+                  isChecked={todo.isCompleted}
                   onChange={() => updateStatus(todo.id, !todo.isCompleted)}
                   value={todo.title}
                   accessibilityLabel="Todoが完了したかのチェックボックス"
                 >
-                  <Text mx={2} strikeThrough={todo.isCompleted || false}>
+                  <Text mx={2} strikeThrough={todo.isCompleted}>
                     {todo.title}
                   </Text>
                 </Checkbox>

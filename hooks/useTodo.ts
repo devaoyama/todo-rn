@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
 import loginUserState from "../atoms/loginUser";
+import firestoreSimple from "../utils/firestoreSimple";
 import firebase from "../utils/firebase";
 
 type AddArgs = {
@@ -11,78 +12,64 @@ type Todo = {
   id: string;
   title: string;
   isCompleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 const useTodo = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const loginUser = useRecoilValue(loginUserState);
 
+  const todosCollection = useMemo(() => {
+    return firestoreSimple.collection<Todo>({
+      path: `/users/${loginUser?.uid}/todos`,
+    });
+  }, [loginUser]);
+
   useEffect(() => {
-    console.log("Hello");
-    if (!loginUser) return;
-    firebase
-      .firestore()
-      .collection("users")
-      .doc(loginUser.uid)
-      .collection("todos")
-      .onSnapshot((snapshot) => {
-        setTodos(
-          snapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-              id: doc.id,
-              title: data.title,
-              isCompleted: data.isCompleted,
-            };
-          })
-        );
+    const unsubscribe = todosCollection
+      .orderBy("createdAt", "asc")
+      .onSnapshot((snapshot, toObject) => {
+        snapshot.docChanges().forEach((change) => {
+          const todo = toObject(change.doc);
+          switch (change.type) {
+            case "added":
+              setTodos((prev) => [todo, ...prev]);
+              break;
+            case "modified":
+              setTodos((prev) =>
+                prev.map((item) => (item.id === todo.id ? todo : item))
+              );
+              break;
+            case "removed":
+              setTodos((prev) => prev.filter((item) => item.id !== todo.id));
+              break;
+          }
+        });
       });
+
+    return () => unsubscribe();
   }, []);
 
   const add = async ({ title }: AddArgs) => {
-    if (!loginUser) return;
-    const doc = await firebase
-      .firestore()
-      .collection("users")
-      .doc(loginUser.uid)
-      .collection("todos")
-      .add({ title, isCompleted: false });
-    setTodos([
-      ...todos,
-      {
-        id: doc.id,
-        title: title,
-        isCompleted: false,
-      },
-    ]);
+    await todosCollection.add({
+      title,
+      isCompleted: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
   };
 
   const remove = async (id: string) => {
-    if (!loginUser) return;
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(loginUser.uid)
-      .collection("todos")
-      .doc(id)
-      .delete();
-    setTodos(todos.filter((todo) => todo.id !== id));
+    await todosCollection.delete(id);
   };
 
   const updateStatus = async (id: string, isCompleted: boolean) => {
-    if (!loginUser) return;
-    await firebase
-      .firestore()
-      .collection("users")
-      .doc(loginUser.uid)
-      .collection("todos")
-      .doc(id)
-      .update({ isCompleted });
-    setTodos(
-      todos.map((todo) => {
-        return todo.id === id ? { ...todo, isCompleted } : todo;
-      })
-    );
+    await todosCollection.update({
+      id,
+      isCompleted,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
   };
 
   return {
