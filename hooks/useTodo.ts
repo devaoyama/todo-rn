@@ -1,24 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRecoilValue } from "recoil";
 import loginUserState from "../states/loginUser";
 import firestoreSimple from "../utils/firestoreSimple";
 import firebase from "../utils/firebase";
+import { Todo, todoActions, todoSelectors } from "../states/todo";
 
 type AddArgs = {
   title: string;
 };
 
-type Todo = {
-  id: string;
-  title: string;
-  isCompleted: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 const useTodo = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const todos = todoSelectors.useTodos();
   const loginUser = useRecoilValue(loginUserState);
+  const addTodo = todoActions.useAddTodo();
+  const updateTodo = todoActions.useUpdateTodo();
+  const removeTodo = todoActions.useRemoveTodo();
 
   const todosCollection = useMemo(() => {
     return firestoreSimple.collection<Todo>({
@@ -34,15 +30,13 @@ const useTodo = () => {
           const todo = toObject(change.doc);
           switch (change.type) {
             case "added":
-              setTodos((prev) => [todo, ...prev]);
+              addTodo(todo);
               break;
             case "modified":
-              setTodos((prev) =>
-                prev.map((item) => (item.id === todo.id ? todo : item))
-              );
+              updateTodo(todo);
               break;
             case "removed":
-              setTodos((prev) => prev.filter((item) => item.id !== todo.id));
+              removeTodo(todo);
               break;
           }
         });
