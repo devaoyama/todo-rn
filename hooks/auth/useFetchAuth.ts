@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRecoilState } from "recoil";
 import firebase from "../../utils/firebase";
-import loginUserState from "../../atoms/loginUser";
+import loginUserState from "../../states/loginUser";
 
 type Props = {
   loginUser: firebase.User | null | undefined;

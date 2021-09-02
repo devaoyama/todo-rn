@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRecoilValue } from "recoil";
-import loginUserState from "../atoms/loginUser";
+import loginUserState from "../states/loginUser";
 import firestoreSimple from "../utils/firestoreSimple";
 import firebase from "../utils/firebase";
 
